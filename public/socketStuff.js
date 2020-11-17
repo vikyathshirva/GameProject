@@ -6,11 +6,12 @@ function init(){
 
     socket.emit('init',{
         playerName: player.name
+        
     })
-
+    
     //console.log(orbs)
 }
-
+ 
 
 
 

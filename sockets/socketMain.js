@@ -1,16 +1,10 @@
 const io = require('../servers').io
-
-const PlayerConfig = require('./classes/PlayerConfig')
 const Player = require('./classes/Player')
 const PlayerData = require('./classes/PlayerData')
-
-
+const PlayerConfig = require('./classes/PlayerConfig')
 const Orb = require('./classes/Orb')
 let orbs = []
 let players = []
-
-
-
 let settings = {
     defaultOrbs : 500,
     defaultSpeed : 10,
@@ -26,26 +20,30 @@ initGame()
 
 
 
-io.sockets.on('connect',(socket)=>{
-    let player = {}
 
+io.sockets.on('connect',(socket)=>{
+
+    player = {}
+    
+    
     socket.on('init',(data)=>{
     socket.join('game');
     let playerConfig = new PlayerConfig(settings);
     let playerData = new PlayerData(data.playerName, settings);
     player = new Player(socket.id, playerConfig, playerData);   
 
-
-
-    setInterval(()=>{
+    
+    
+        
+        setInterval(()=>{
         io.to('game').emit('tock',{
             players,
             playerX : player.playerData.locX,
-            playerY : player.playerData.locY
+            playerY : player.playerData.locY,
 
         });
     },33);
-    
+
     socket.emit('initReturn',{
         orbs
     });
