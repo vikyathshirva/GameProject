@@ -1,4 +1,8 @@
 const io = require('../servers').io
+
+const checkForOrbCollisions = require('./checkCollisions').checkForOrbCollisions
+const checkForPlayerCollisions = require('./checkCollisions').checkForPlayerCollisions
+
 const Player = require('./classes/Player')
 const PlayerData = require('./classes/PlayerData')
 const PlayerConfig = require('./classes/PlayerConfig')
@@ -17,13 +21,9 @@ let settings = {
 
 initGame()
 
-
-
-
-
 io.sockets.on('connect',(socket)=>{
 
-    player = {}
+    let player = {}
     
     
     socket.on('init',(data)=>{
