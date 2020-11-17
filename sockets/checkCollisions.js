@@ -24,7 +24,7 @@ function checkForOrbCollisions(pData,pConfig, orbs, settings){
                     if(pConfig.zoom > 1){
                         pConfig.zoom -= .001;
                     }
-                    pData.radius += 0.25;
+                    pData.radius += 0.15;
                     if(pConfig.speed < -0.005){
                         pConfig.speed += 0.005;
                     }else if(pConfig.speed > 0.005){
@@ -49,7 +49,7 @@ function checkForPlayerCollisions(pData,pConfig,players,playerId){
         //PLAYER COLLISIONS	
         players.forEach((curPlayer,i)=>{
             if(curPlayer.uid != playerId){
-                // console.log(curPlayer.uid,pData.uid)
+                // console.log(curPlayer.uid, )
                 let pLocx = curPlayer.locX
                 let pLocy = curPlayer.locY
                 let pR = curPlayer.radius
@@ -75,16 +75,16 @@ function checkForPlayerCollisions(pData,pConfig,players,playerId){
                             resolve(collisionData);
 
                         }
-                        // else if(pData.radius < pR){           
-                        //     let collisionData = updateScores(curPlayer,pData);
-                        //     players.forEach((p,i)=>{
-                        //         console.log(players[i].name, i)
-                        //         if (pData.uid == p.uid){
-                        //             players.splice(i, 1);
-                        //         }
-                        //     }); 
-                        //     resolve(collisionData);
-                        // }
+                        else if(pData.radius < pR){           
+                            let collisionData = updateScores(curPlayer,pData);
+                            players.forEach((p,i)=>{
+                                console.log(players[i].name, i)
+                                if (pData.uid == p.uid){
+                                    players.splice(i, 1);
+                                }
+                            }); 
+                            resolve(collisionData);
+                        }
                     }
                 }
             }

@@ -8,7 +8,7 @@ function draw(){
     context.setTransform(1,0,0,1,0,0)
     context.clearRect(0,0,canvas.width,canvas.height)
 
-    console.log(player.locX,player.locY)
+    //console.log(player.locX,player.locY)
 
     const camX = -player.locX + canvas.width/2
     const camY = -player.locY + canvas.height/2
@@ -19,7 +19,7 @@ function draw(){
     players.forEach((p)=>{
         context.beginPath()
         context.fillStyle = p.color
-        context.arc(p.locX,p.locY,10,0,Math.PI*2)
+        context.arc(p.locX,p.locY,p.radius,0,Math.PI*2)
         //context.arc(200,200,10,0,Math.PI*2)
         context.fill()
         context.lineWidth = 3;
@@ -44,7 +44,7 @@ function draw(){
 }
 
 canvas.addEventListener('mousemove',(event)=>{
-    console.log(event)
+    //console.log(event)
     const mousePosition = {
         x: event.clientX,
         y: event.clientY

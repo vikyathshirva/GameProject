@@ -10,16 +10,26 @@ const Orb = require('./classes/Orb')
 let orbs = []
 let players = []
 let settings = {
-    defaultOrbs : 500,
-    defaultSpeed : 10,
-    defaultRadius: 6,
-    defaultZoom: 1.5,
+    defaultOrbs : 50,
+    defaultSpeed : 6,
+    defaultRadius: 10,
+    defaultZoom: 0.5,
     worldWidth: 500,
     worldHeight: 500
 }
 
 
 initGame()
+
+       setInterval(()=>{
+        if (players.length > 0){
+
+            io.to('game').emit('tock',{
+            players,
+        });
+        }
+        
+    },33);
 
 io.sockets.on('connect',(socket)=>{
 
@@ -36,8 +46,8 @@ io.sockets.on('connect',(socket)=>{
     
         
         setInterval(()=>{
-        io.to('game').emit('tock',{
-            players,
+        socket.emit('ticktok',{
+
             playerX : player.playerData.locX,
             playerY : player.playerData.locY,
 
@@ -56,18 +66,83 @@ io.sockets.on('connect',(socket)=>{
             xV = player.playerConfig.xVector = data.xVector
             yV = player.playerConfig.yVector = data.yVector
 
-            if((player.playerData.locX < 5 && player.playerData.xVector < 0) || (player.playerData.locX > 500) && (xV > 0)){
+            if((player.playerData.locX < 5 && player.playerData.xVector < 0) || (player.playerData.locX > settings.worldWidth) && (xV > 0)){
                 player.playerData.locY -= speed * yV;
-            }else if((player.playerData.locY < 5 && yV > 0) || (player.playerData.locY > 500) && (yV < 0)){
+            }else if((player.playerData.locY < 5 && yV > 0) || (player.playerData.locY > settings.worldHeight) && (yV < 0)){
                 player.playerData.locX += speed * xV;
             }else{
                 player.playerData.locX += speed * xV;
                 player.playerData.locY -= speed * yV;
             }  
+
+            let capturedOrb = checkForOrbCollisions(player.playerData,player.playerConfig, orbs, settings)
+
+            capturedOrb.then((data)=>{
+
+                const orbData = {
+                    orbIndex : data,
+                    newOrb: orbs[data]
+                }
+                //Collision code
+                //console.log(orbData)
+
+                io.sockets.emit('updateLeaderBoard',getLeaderBoard())
+                io.sockets.emit('orbSwitch',orbData)
+
+
+            }).catch(()=>{
+                //No Collision code
+                //console.log("No Orb collision")
+                
+
+            })
+
+            let playerDeath = checkForPlayerCollisions(player.playerData,player.PlayerConfig,players,player.socketId)
+
+            playerDeath.then((data)=>{
+                //console.log("player collision!!")
+                 io.sockets.emit('updateLeaderBoard',getLeaderBoard())
+                 io.sockets.emit('playerDeath',data)
+
+            }).catch(()=>{
+
+            })  
+
+
+    })
+    socket.on('disconnect',(data)=>{
+
+        if(player.playerData){
+            players.forEach((curPlayer, i)=>{
+                        if(curPlayer.uid == player.playerData.uid){
+                                players.splice(i,1);
+                                io.sockets.emit('updateLeaderBoard',getLeaderBoard())
+                        }
+
+
+                    })
+
+        }
+        
+        
     })
 
     
 })
+
+
+function getLeaderBoard(){
+    players.sort((a,b)=>{
+        return b.score-a.score
+    })
+    let leaderBoard = players.map((curPlayer)=>{
+        return {
+            name : curPlayer.name,
+            score : curPlayer.score
+        }
+    })
+    return leaderBoard
+}
 
 function initGame(){
 
